@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(uuid())
+  name           String?
+  email          String   @unique
+  password       String?
+  points         Int      @default(0)
+  walletBalance  Float    @default(0)
+  referralCode   String   @unique
+  referredBy     String?
+  createdAt      DateTime @default(now())
+  quizzes        Quiz[]
+  referrals      Referral[] @relation("Referrals")
+  referredEntries Referral[] @relation("Referred")
+  tasks          TaskCompletion[]
+}
+
+model Question {
+  id         String   @id @default(uuid())
+  category   String
+  question   String
+  options    String
+  answer     String
+  quizzes    Quiz[]
+}
+
+model Quiz {
+  id         String   @id @default(uuid())
+  userId     String
+  questionId String
+  isCorrect  Boolean
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  question   Question @relation(fields: [questionId], references: [id])
+}
+
+model Task {
+  id      String   @id @default(uuid())
+  title   String
+  url     String
+  reward  Int
+  completions TaskCompletion[]
+}
+
+model TaskCompletion {
+  id        String   @id @default(uuid())
+  taskId    String
+  userId    String
+  completed Boolean  @default(false)
+  user      User     @relation(fields: [userId], references: [id])
+  task      Task     @relation(fields: [taskId], references: [id])
+}
+
+model Referral {
+  id         String   @id @default(uuid())
+  referrerId String
+  referredId String
+  bonus      Int
+  createdAt  DateTime @default(now())
+  referrer   User     @relation("Referrals", fields: [referrerId], references: [id])
+  referred   User     @relation("Referred", fields: [referredId], references: [id])
+}

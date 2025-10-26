@@ -1,6 +1,7 @@
 "use client"
 import React, { useEffect, useState } from 'react'
 import QuizCard from '../../components/ui/QuizCard'
+import Card from '../../components/ui/Card'
 
 type Q = { id: string; question: string; options: string[] }
 
@@ -32,9 +33,15 @@ export default function QuizPage() {
   }
 
   return (
-    <section>
-      <h2 className="text-2xl font-bold mb-4">Quiz</h2>
-      <QuizCard question={q} onAnswer={handleAnswer} />
+    <section className="space-y-6">
+      <header className="flex items-center justify-between">
+        <h2 className="text-3xl font-extrabold">Quiz</h2>
+        <div className="text-sm text-gray-500">Test your knowledge — quick rounds</div>
+      </header>
+
+      <Card>
+        <QuizCard question={q} onAnswer={handleAnswer} />
+      </Card>
     </section>
   )
 }

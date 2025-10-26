@@ -7,8 +7,8 @@ export default function WalletSummary({ balance = 0 }: { balance?: number }) {
     <Card>
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-sm text-gray-500">Wallet balance</div>
-          <div className="text-2xl font-semibold">${balance.toFixed(2)}</div>
+          <div className="text-sm text-yellow-700">Wallet balance</div>
+          <div className="text-3xl font-extrabold">${balance.toFixed(2)}</div>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="ghost">Top up</Button>

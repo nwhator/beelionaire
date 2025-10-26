@@ -21,10 +21,12 @@ export default function QuizCard({ question, onAnswer }: { question: Question, o
                 key={o}
                 role="listitem"
                 onClick={() => onAnswer(o)}
-                className="text-left p-3 border rounded hover:bg-gray-50 focus-ring"
+                className="text-left p-3 rounded-xl border-2 border-yellow-200 bg-white hover:scale-[1.02] transition transform-gpu shadow-sm flex items-center gap-3"
                 aria-label={`Answer option: ${o}`}
               >
-                {o}
+                <span className="w-3 h-3 rounded-full bg-yellow-500" aria-hidden />
+                <span className="flex-1">{o}</span>
+                <span className="text-sm text-gray-500">Choose</span>
               </button>
             ))}
           </div>

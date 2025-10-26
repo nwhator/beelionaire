@@ -11,6 +11,15 @@ const nextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
   },
+  experimental: {
+    // Use SWC-based CSS transformer to avoid Turbopack requiring LightningCSS
+    // native binaries during the build. This works around platforms where
+    // lightningcss native modules or wasm packages are not resolvable by the
+    // bundler.
+    css: {
+      transformer: 'swc',
+    },
+  },
 }
 
 module.exports = nextConfig

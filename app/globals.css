@@ -1,26 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Design tokens (RGB triples where useful for dynamic rgba) */
+:root{
+  --bg: 255 255 255; /* white by default */
+  --panel: 255 250 240; /* warm panel */
+  --text: 17 17 17; /* near-black */
+  --muted: 102 102 102;
+  --brand: 255 215 0; /* bee yellow */
+  --radius-2xl: 1rem;
+}
 
 html, body, #__next {
   height: 100%;
 }
 
-:root{
-  /* Design tokens */
-  --bg: 255 255 255;
-  --text: 13 13 13;
-  --brand: 255 215 0;
-  --radius-2xl: 1rem;
-}
-
+/* Base element styles */
 body{
-  background-color: rgb(var(--bg));
+  background: linear-gradient(180deg, rgb(255 255 250) 0%, rgb(255 253 240) 100%);
   color: rgb(var(--text));
   -webkit-font-smoothing: antialiased;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  line-height: 1.45;
 }
 
+/* Ensure container class matches Tailwind container sizing when JS isn't applied */
 .container{
   margin-left: auto;
   margin-right: auto;
@@ -29,12 +36,26 @@ body{
   padding-right: 1rem;
 }
 
-/* Focus styles for accessibility */
+/* Accessible focus rings */
 :where(:focus-visible){
   outline: 3px solid rgba(var(--brand),0.25);
   outline-offset: 2px;
 }
-
-/* Utility focus-visible for components */
 .focus-ring:focus-visible{ outline: 3px solid rgba(var(--brand),0.25); outline-offset: 2px }
+
+/* Simple components styling for a modern bee-theme */
+.site-header{ background: linear-gradient(90deg, rgba(255,215,0,0.06), rgba(13,13,13,0.02)); }
+.brand-badge{ display:inline-flex; align-items:center; gap:.5rem; font-weight:700 }
+.brand-dot{ width:10px; height:10px; background:rgb(var(--brand)); border-radius:9999px; box-shadow:0 2px 6px rgba(0,0,0,0.12) }
+.card{ background: white; border-radius:var(--radius-2xl); box-shadow:0 6px 20px rgba(13,13,13,0.06); padding:1rem }
+
+/* Button fallback styles for non-Tailwind users or SSR snapshots */
+button{
+  font-family: inherit;
+}
+
+/* small responsive tweaks */
+@media (min-width: 768px){
+  .container{ padding-left:1.5rem; padding-right:1.5rem }
+}
 

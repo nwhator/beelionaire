@@ -1,5 +1,7 @@
 "use client"
 import React, { useState } from 'react'
+import Card from '../../../../components/ui/Card'
+import Button from '../../../../components/ui/Button'
 
 export default function UploadQuestionsPage() {
   const [file, setFile] = useState<File | null>(null)
@@ -20,14 +22,16 @@ export default function UploadQuestionsPage() {
   }
 
   return (
-    <section>
-      <h2 className="text-2xl font-bold mb-4">Upload Questions (JSON)</h2>
-      <p className="text-sm text-gray-500 mb-4">Upload an array of questions. Each item should have: category, question, options (array), answer.</p>
-      <input type="file" accept="application/json" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-      <div className="mt-4">
-        <button onClick={handle} className="px-4 py-2 rounded-2xl bg-[rgb(var(--brand))]">Upload</button>
-      </div>
-      {status && <div className="mt-3">{status}</div>}
+    <section className="space-y-6">
+      <h2 className="text-3xl font-extrabold">Upload Questions (JSON)</h2>
+      <Card>
+        <p className="text-sm text-gray-600 mb-4">Upload an array of questions. Each item should have: category, question, options (array), answer.</p>
+        <input type="file" accept="application/json" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+        <div className="mt-4">
+          <Button onClick={handle} variant="primary">Upload</Button>
+        </div>
+        {status && <div className="mt-3">{status}</div>}
+      </Card>
     </section>
   )
 }
