@@ -1,61 +1,170 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Poppins:wght@600;700;800&display=swap');
 
+/* stylelint-disable at-rule-no-unknown */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* stylelint-enable at-rule-no-unknown */
 
-/* Design tokens (RGB triples where useful for dynamic rgba) */
+/*
+  Global design tokens and lightweight component helpers.
+  Purpose: provide a coherent bee + duo (green) accent system and accessible focus/animation defaults.
+*/
 :root{
-  --bg: 255 255 255; /* white by default */
-  --panel: 255 250 240; /* warm panel */
-  --text: 17 17 17; /* near-black */
-  --muted: 102 102 102;
-  --brand: 255 215 0; /* bee yellow */
-  --radius-2xl: 1rem;
+  /* core colors as RGB for dynamic alpha usage */
+  --bg: 250 251 253;            /* soft near-white */
+  --panel: 255 255 255;         /* pure white card surface */
+  --text: 22 24 27;            /* primary text */
+  --muted: 100 110 120;        /* secondary text */
+
+  /* Brand accents */
+  --bee: 255 179 25;           /* warm bee yellow */
+  --bee-700: 255 160 0;
+  --duo: 52 200 74;            /* Duolingo-like green */
+  --ink: 17 24 39;             /* deep ink for contrast */
+
+  /* UI radii & shadows */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-soft: 0 10px 30px rgba(17,24,39,0.06);
+  --shadow-pop: 0 18px 50px rgba(17,24,39,0.12);
+
+  /* motion */
+  --motion-fast: 120ms;
+  --motion-medium: 240ms;
 }
 
-html, body, #__next {
-  height: 100%;
+/* Safe reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  :root { --motion-medium: 1ms; --motion-fast: 1ms; }
 }
 
-/* Base element styles */
+html, body, #__next { height: 100%; }
+
+/* Base typographic scale */
 body{
-  background: linear-gradient(180deg, rgb(255 255 250) 0%, rgb(255 253 240) 100%);
+  background: radial-gradient(800px 360px at 8% 8%, rgba(var(--bee),0.06), transparent), linear-gradient(180deg, rgba(var(--bee),0.02), rgba(var(--bg),1));
   color: rgb(var(--text));
   -webkit-font-smoothing: antialiased;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
   line-height: 1.45;
+  font-size: 16px;
 }
 
-/* Ensure container class matches Tailwind container sizing when JS isn't applied */
-.container{
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 80rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
+/* Use Poppins for headings for a friendlier, rounded display */
+h1, h2, h3, .h1, .h2 { font-family: 'Poppins', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
 
-/* Accessible focus rings */
-:where(:focus-visible){
-  outline: 3px solid rgba(var(--brand),0.25);
-  outline-offset: 2px;
-}
-.focus-ring:focus-visible{ outline: 3px solid rgba(var(--brand),0.25); outline-offset: 2px }
+/* Container shim used by layout components (keeps spacing consistent when needed) */
+.container{ margin-left:auto; margin-right:auto; max-width:72rem; padding-left:1rem; padding-right:1rem }
+@media (min-width:768px){ .container{ padding-left:1.5rem; padding-right:1.5rem } }
 
-/* Simple components styling for a modern bee-theme */
-.site-header{ background: linear-gradient(90deg, rgba(255,215,0,0.06), rgba(13,13,13,0.02)); }
-.brand-badge{ display:inline-flex; align-items:center; gap:.5rem; font-weight:700 }
-.brand-dot{ width:10px; height:10px; background:rgb(var(--brand)); border-radius:9999px; box-shadow:0 2px 6px rgba(0,0,0,0.12) }
-.card{ background: white; border-radius:var(--radius-2xl); box-shadow:0 6px 20px rgba(13,13,13,0.06); padding:1rem }
+/* Headings */
+h1, .h1{ font-weight:800; font-size:clamp(1.6rem, 3.6vw, 2.6rem); letter-spacing:-0.02em; color:rgb(var(--ink)); }
+h2, .h2{ font-weight:800; font-size:clamp(1.25rem, 2.8vw, 1.9rem); color:rgb(var(--ink)); }
+p.lead{ color: rgba(var(--muted),1); font-size:1.02rem }
 
-/* Button fallback styles for non-Tailwind users or SSR snapshots */
-button{
-  font-family: inherit;
+/* Accessible focus outline helper */
+:where(:focus-visible){ outline: 3px solid rgba(var(--bee),0.18); outline-offset:3px; border-radius:6px }
+.focus-ring:focus-visible{ outline: 3px solid rgba(var(--bee),0.18); outline-offset:3px }
+
+/* Cards */
+.card{ background: rgb(var(--panel)); border-radius:var(--radius-lg); box-shadow:var(--shadow-soft); padding:1rem; transition:box-shadow var(--motion-medium) ease, transform var(--motion-medium) ease }
+.card:hover{ box-shadow:var(--shadow-pop); transform:translateY(-4px) }
+.card-ghost{ background: linear-gradient(180deg, rgba(var(--bee),0.02), rgba(255,255,255,0.6)) }
+
+/* Brand / logo */
+.brand{ display:inline-flex; align-items:center; gap:.6rem; font-weight:800; color:rgb(var(--ink)); }
+.brand-dot{ width:14px; height:14px; border-radius:9999px; background: linear-gradient(180deg, rgb(var(--bee)), rgb(var(--bee-700))); box-shadow:0 10px 28px rgba(255,160,0,0.12) }
+
+/* Header / Nav styling */
+.site-header{ background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(var(--bee),0.035)); border-bottom: 1px solid rgba(17,24,39,0.04); position: sticky; top:0; z-index:40; min-height:56px; padding-top:0.5rem; padding-bottom:0.5rem }
+.brand-badge{ display:inline-flex; align-items:center; gap:.6rem; font-weight:900; color:rgb(var(--ink)); }
+.nav-link{ color: rgba(var(--muted),1); padding:.45rem .75rem; border-radius:10px; transition: background var(--motion-fast), color var(--motion-fast); font-weight:600 }
+.nav-link:hover{ background: rgba(17,24,39,0.04); color: rgb(var(--ink)) }
+
+/* Buttons (visual-only helpers) */
+.btn{ display:inline-flex; align-items:center; justify-content:center; gap:.5rem; padding:.6rem 1rem; border-radius:12px; font-weight:700; cursor:pointer; transition:transform var(--motion-fast) ease, box-shadow var(--motion-fast) ease }
+.btn:active{ transform:translateY(1px) }
+.btn-primary{ background: linear-gradient(90deg, rgb(var(--bee)), rgb(var(--bee-700))); color: #09101A; box-shadow:0 12px 36px rgba(255,160,0,0.12) }
+.btn-duo{ background: linear-gradient(90deg, rgb(var(--duo)), rgba(var(--duo),0.88)); color: white; box-shadow:0 10px 30px rgba(52,200,74,0.12) }
+.btn-ghost{ background:transparent; border:1px solid rgba(17,24,39,0.06); color: rgb(var(--ink)) }
+.btn-pill{ border-radius:9999px }
+
+/* Inputs (visual) */
+.input{ display:block; width:100%; padding:.72rem .9rem; border-radius:10px; border:1px solid rgba(17,24,39,0.06); background:rgba(255,255,255,0.9); transition:box-shadow var(--motion-fast), border-color var(--motion-fast) }
+.input:focus{ box-shadow:0 8px 30px rgba(0,0,0,0.06); border-color: rgba(var(--bee),0.9) }
+
+/* Badges and status */
+.badge{ display:inline-flex; align-items:center; gap:.4rem; padding:.25rem .6rem; border-radius:9999px; font-weight:700; font-size:.85rem }
+.badge-bee{ background:linear-gradient(90deg, rgba(var(--bee),0.12), rgba(var(--bee-700),0.08)); color: rgb(var(--ink)) }
+.badge-duo{ background:linear-gradient(90deg, rgba(var(--duo),0.12), rgba(var(--duo),0.08)); color: rgb(8,64,20) }
+
+/* Leaderboard rank circle */
+.rank{ display:inline-grid; place-items:center; width:44px; height:44px; border-radius:9999px; background:linear-gradient(180deg, rgba(var(--bee),0.12), rgba(var(--bee-700),0.06)); font-weight:800 }
+
+/* rank medals */
+.rank-gold{ background: linear-gradient(180deg, rgba(255,200,80,0.12), rgba(255,160,0,0.12)); color: #1F1A03 }
+.rank-silver{ background: linear-gradient(180deg, rgba(200,200,200,0.08), rgba(170,170,170,0.06)); color: #111 }
+.rank-bronze{ background: linear-gradient(180deg, rgba(220,180,140,0.08), rgba(200,140,80,0.06)); color: #111 }
+
+/* Hero helpers */
+.hero{ padding:2.25rem 1rem; border-radius:var(--radius-lg); background: linear-gradient(180deg, rgba(var(--bee),0.02), rgba(255,255,255,0.5)); box-shadow:var(--shadow-soft) }
+.hero-sm{ padding:1rem }
+.hero-title{ font-size:clamp(1.8rem, 4vw, 3rem); line-height:1.02; font-weight:800 }
+.hero-sub{ color:rgba(var(--muted),1); margin-top:.5rem }
+
+/* Feature grid */
+.feature-grid{ display:grid; grid-template-columns:1fr; gap:1rem }
+@media (min-width: 1024px){ .feature-grid{ grid-template-columns:repeat(3, 1fr) } }
+
+/* small utilities */
+.muted{ color: rgba(var(--muted),1) }
+.kicker{ text-transform:uppercase; font-weight:800; color:rgba(var(--bee),1); letter-spacing:0.06em; font-size:.75rem }
+.lead-muted{ color: rgba(var(--muted),1); font-size:0.98rem }
+
+/* subtle motion for interactive items */
+.tile-press{ transition: transform var(--motion-fast), box-shadow var(--motion-fast); }
+.tile-press:hover{ transform: translateY(-6px); box-shadow: var(--shadow-pop); }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .tile-press, .card, .btn{ transition:none !important; transform:none !important }
 }
 
 /* small responsive tweaks */
-@media (min-width: 768px){
-  .container{ padding-left:1.5rem; padding-right:1.5rem }
+@media (min-width: 768px){ .container{ padding-left:2rem; padding-right:2rem } }
+
+/* --- Animation utilities (CSS-only) --- */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
+
+@keyframes popIn {
+  0% { opacity: 0; transform: scale(.98) translateY(6px); }
+  60% { opacity: 1; transform: scale(1.02) translateY(-2px); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+@keyframes pulseBee {
+  0% { transform: translateY(0) scale(1); opacity: .98 }
+  50% { transform: translateY(-4px) scale(1.02); opacity: 1 }
+  100% { transform: translateY(0) scale(1); opacity: .98 }
+}
+
+.animate-fade-up{ animation: fadeUp var(--motion-medium) ease both }
+.animate-pop{ animation: popIn var(--motion-medium) cubic-bezier(.2,.9,.25,1) both }
+.animate-bee{ animation: pulseBee 2200ms ease-in-out infinite }
+
+/* Simple stagger helper (applies increasing delays to children) */
+.stagger > *{ opacity:0; transform: translateY(8px); animation: fadeUp var(--motion-medium) ease both; }
+.stagger > *:nth-child(1){ animation-delay: 60ms }
+.stagger > *:nth-child(2){ animation-delay: 140ms }
+.stagger > *:nth-child(3){ animation-delay: 220ms }
+.stagger > *:nth-child(4){ animation-delay: 320ms }
+.stagger > *:nth-child(5){ animation-delay: 420ms }
+
+
 

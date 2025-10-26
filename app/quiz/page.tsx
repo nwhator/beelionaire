@@ -22,8 +22,8 @@ export default function QuizPage() {
 
   useEffect(() => { load() }, [])
 
-  if (loading) return <div>Loading...</div>
-  if (!q) return <div>No questions available</div>
+  if (loading) return <div className="muted">Loading...</div>
+  if (!q) return <div className="muted">No questions available</div>
 
   const handleAnswer = async (opt: string) => {
     const res = await fetch('/api/quiz/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: 'anon', questionId: q.id, answer: opt }) })
@@ -33,13 +33,13 @@ export default function QuizPage() {
   }
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-6 animate-fade-up">
       <header className="flex items-center justify-between">
-        <h2 className="text-3xl font-extrabold">Quiz</h2>
-        <div className="text-sm text-gray-500">Test your knowledge — quick rounds</div>
+        <h2 className="text-3xl font-extrabold animate-pop">Quiz</h2>
+        <div className="text-sm muted">Test your knowledge — quick rounds</div>
       </header>
 
-      <Card>
+      <Card className="animate-pop">
         <QuizCard question={q} onAnswer={handleAnswer} />
       </Card>
     </section>

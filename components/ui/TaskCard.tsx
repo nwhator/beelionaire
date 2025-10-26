@@ -12,14 +12,14 @@ type Task = {
 
 export default function TaskCard({ task, onComplete }: { task: Task, onComplete?: (id: string) => void }) {
   return (
-    <Card className="flex items-center justify-between gap-4" role="article" aria-label={`Task: ${task.title}`}>
+    <Card className="flex items-center justify-between gap-4 tile-press" role="article" aria-label={`Task: ${task.title}`}>
       <div>
         <h3 className="font-semibold text-lg">{task.title}</h3>
-        <a href={task.url} target="_blank" rel="noreferrer" className="text-sm text-yellow-700 underline">Open task</a>
+        <a href={task.url} target="_blank" rel="noreferrer" className="text-sm muted underline">Open task</a>
       </div>
       <div className="flex items-center gap-3">
-        <div className="text-sm text-black font-semibold bg-yellow-100 px-3 py-1 rounded-full">+{task.reward} pts</div>
-        <Button onClick={() => onComplete?.(task.id)} variant="primary" aria-label={`Mark ${task.title} complete`}>Claim</Button>
+        <div className="badge badge-bee">+{task.reward} pts</div>
+        <Button onClick={() => onComplete?.(task.id)} variant="duo" aria-label={`Mark ${task.title} complete`}>Claim</Button>
       </div>
     </Card>
   )
