@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #__next {
+  height: 100%;
+}
+
+:root{
+  /* Design tokens */
+  --bg: 255 255 255;
+  --text: 13 13 13;
+  --brand: 255 215 0;
+  --radius-2xl: 1rem;
+}
+
+body{
+  background-color: rgb(var(--bg));
+  color: rgb(var(--text));
+  -webkit-font-smoothing: antialiased;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+.container{
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 80rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Focus styles for accessibility */
+:where(:focus-visible){
+  outline: 3px solid rgba(var(--brand),0.25);
+  outline-offset: 2px;
+}
+
+/* Utility focus-visible for components */
+.focus-ring:focus-visible{ outline: 3px solid rgba(var(--brand),0.25); outline-offset: 2px }
+
