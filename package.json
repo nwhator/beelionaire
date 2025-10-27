@@ -29,12 +29,15 @@
     "@types/node": "^20.4.2",
     "@types/react": "^18.2.21",
     "autoprefixer": "^10.4.14",
-    "lightningcss-win32-x64-msvc": "^1.30.2",
+    
     "postcss": "^8.4.27",
     "prisma": "^5.9.0",
     "tailwindcss": "^4.0.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.6.2"
+  },
+  "optionalDependencies": {
+    "lightningcss-win32-x64-msvc": "^1.30.2"
   },
   "overrides": {
     "next-auth": {
