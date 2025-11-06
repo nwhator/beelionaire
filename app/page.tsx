@@ -1,7 +1,18 @@
+'use client'
 import Link from 'next/link'
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function Home() {
+  const router = useRouter()
+
+  useEffect(() => {
+    // Handle hash-based auth redirects from Supabase emails
+    if (window.location.hash.includes('access_token') || window.location.hash.includes('token_hash')) {
+      router.push('/auth/callback' + window.location.hash)
+    }
+  }, [router])
+
   return (
     <main className="min-h-screen flex items-center justify-center py-20">
       <section className="container grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
