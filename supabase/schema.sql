@@ -1,6 +1,17 @@
 -- Supabase Database Schema for Beelionaire
 -- Run this in Supabase SQL Editor
 
+-- ⚠️ WARNING: This will DELETE ALL DATA and recreate tables from scratch!
+-- Only run this if you want to start fresh
+
+-- Drop all existing tables (in correct order due to foreign keys)
+DROP TABLE IF EXISTS "Referral" CASCADE;
+DROP TABLE IF EXISTS "TaskCompletion" CASCADE;
+DROP TABLE IF EXISTS "Quiz" CASCADE;
+DROP TABLE IF EXISTS "Task" CASCADE;
+DROP TABLE IF EXISTS "Question" CASCADE;
+DROP TABLE IF EXISTS "User" CASCADE;
+
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
