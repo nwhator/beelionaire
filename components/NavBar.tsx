@@ -5,7 +5,7 @@ import { useAuth } from '../lib/auth-context'
 
 export default function NavBar() {
   const [open, setOpen] = useState(false)
-  const { user, signOut } = useAuth()
+  const { user, signOut, loading } = useAuth()
 
   return (
     <header className="site-header">
@@ -19,7 +19,9 @@ export default function NavBar() {
           <Link href="/" className="nav-link">Home</Link>
           <Link href="/about" className="nav-link">About</Link>
           
-          {user ? (
+          {loading ? (
+            <div className="text-sm text-gray-400">Loading...</div>
+          ) : user ? (
             <>
               <Link href="/dashboard" className="nav-link">Dashboard</Link>
               <Link href="/quiz" className="nav-link">Quiz</Link>
@@ -48,22 +50,24 @@ export default function NavBar() {
       {open && (
         <div className="sm:hidden border-t bg-white/90 backdrop-blur">
           <div className="container py-3 flex flex-col gap-2">
-            <Link href="/" className="nav-link">Home</Link>
-            <Link href="/about" className="nav-link">About</Link>
+            <Link href="/" className="nav-link" onClick={() => setOpen(false)}>Home</Link>
+            <Link href="/about" className="nav-link" onClick={() => setOpen(false)}>About</Link>
             
-            {user ? (
+            {loading ? (
+              <div className="text-sm text-gray-400 p-2">Loading...</div>
+            ) : user ? (
               <>
-                <Link href="/dashboard" className="nav-link">Dashboard</Link>
-                <Link href="/quiz" className="nav-link">Quiz</Link>
-                <Link href="/tasks" className="nav-link">Tasks</Link>
-                <Link href="/leaderboard" className="nav-link">Leaderboard</Link>
-                <Link href="/profile" className="nav-link">Profile</Link>
-                <button onClick={signOut} className="btn btn-ghost w-full mt-2">Logout</button>
+                <Link href="/dashboard" className="nav-link" onClick={() => setOpen(false)}>Dashboard</Link>
+                <Link href="/quiz" className="nav-link" onClick={() => setOpen(false)}>Quiz</Link>
+                <Link href="/tasks" className="nav-link" onClick={() => setOpen(false)}>Tasks</Link>
+                <Link href="/leaderboard" className="nav-link" onClick={() => setOpen(false)}>Leaderboard</Link>
+                <Link href="/profile" className="nav-link" onClick={() => setOpen(false)}>Profile</Link>
+                <button onClick={() => { signOut(); setOpen(false); }} className="btn btn-ghost w-full mt-2">Logout</button>
               </>
             ) : (
               <div className="flex gap-2 mt-2">
-                <Link href="/auth/login" className="btn btn-ghost flex-1">Login</Link>
-                <Link href="/auth/register" className="btn btn-primary flex-1">Sign Up</Link>
+                <Link href="/auth/login" className="btn btn-ghost flex-1" onClick={() => setOpen(false)}>Login</Link>
+                <Link href="/auth/register" className="btn btn-primary flex-1" onClick={() => setOpen(false)}>Sign Up</Link>
               </div>
             )}
           </div>

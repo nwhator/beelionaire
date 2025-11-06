@@ -44,6 +44,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signUp = async (email: string, password: string, name: string) => {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 
+                    (typeof window !== 'undefined' ? window.location.origin : 'https://beelionaire.vercel.app')
+    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -51,9 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data: {
           name,
         },
-        emailRedirectTo: typeof window !== 'undefined' 
-          ? `${window.location.origin}/auth/callback`
-          : 'https://beelionaire.vercel.app/auth/callback',
+        emailRedirectTo: `${siteUrl}/auth/callback`,
       },
     })
     

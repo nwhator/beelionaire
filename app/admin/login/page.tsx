@@ -1,13 +1,17 @@
 'use client'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 import Card from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
 
-export default function AdminLoginPage() {
+function AdminLoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirect = searchParams.get('redirect') || '/admin/dashboard'
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -20,7 +24,7 @@ export default function AdminLoginPage() {
     if (username === 'justbee' && password === 'Beelionaire@01') {
       // Store admin session
       localStorage.setItem('adminAuth', 'true')
-      router.push('/admin/dashboard')
+      router.push(redirect)
     } else {
       setError('Invalid username or password')
     }
@@ -56,15 +60,24 @@ export default function AdminLoginPage() {
             <label htmlFor="password" className="block text-sm font-medium mb-1">
               Password
             </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="input w-full"
-              placeholder="Enter password"
-              required
-            />
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="input w-full pr-10"
+                placeholder="Enter password"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-sm"
+              >
+                {showPassword ? '🙈' : '👁️'}
+              </button>
+            </div>
           </div>
 
           {error && (
@@ -85,5 +98,17 @@ export default function AdminLoginPage() {
         </div>
       </Card>
     </div>
+  )
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="card">Loading...</div>
+      </div>
+    }>
+      <AdminLoginForm />
+    </Suspense>
   )
 }

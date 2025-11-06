@@ -15,7 +15,7 @@ export default function AdminDashboard() {
     // Check admin auth
     const isAdmin = localStorage.getItem('adminAuth')
     if (!isAdmin) {
-      router.push('/admin/login')
+      router.push('/admin/login?redirect=/admin/dashboard')
     }
   }, [router])
 
