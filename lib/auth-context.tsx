@@ -51,6 +51,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data: {
           name,
         },
+        emailRedirectTo: typeof window !== 'undefined' 
+          ? `${window.location.origin}/auth/callback`
+          : 'https://beelionaire.vercel.app/auth/callback',
       },
     })
     
