@@ -1,11 +1,13 @@
 export const dynamic = 'force-dynamic'
 
-import { prisma } from '../../lib/prisma'
+import { supabaseAdmin } from '../../lib/supabase-server'
 import TasksList from '../../components/ui/TasksList'
 import Card from '../../components/ui/Card'
 
 export default async function TasksPage() {
-  const tasks = (await prisma.task.findMany({})) as Array<{ id: string; title: string; url: string; reward: number }>
+  const { data: tasks } = await supabaseAdmin
+    .from('Task')
+    .select('id, title, url, reward')
 
   return (
     <section className="space-y-6 animate-fade-up">

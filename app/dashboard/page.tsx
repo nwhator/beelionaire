@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic'
 
-import { prisma } from '../../lib/prisma'
+import { supabaseAdmin } from '../../lib/supabase-server'
 import WalletSummary from '../../components/ui/WalletSummary'
 import ReferralWidget from '../../components/ui/ReferralWidget'
 import LeaderboardCard from '../../components/ui/LeaderboardCard'
@@ -8,8 +8,19 @@ import Card from '../../components/ui/Card'
 
 export default async function DashboardPage() {
   // TODO: replace with session user id
-  const user = await prisma.user.findFirst({ where: {}, select: { id: true, name: true, referralCode: true, walletBalance: true } })
-  const top = await prisma.user.findMany({ orderBy: { points: 'desc' }, take: 5, select: { id: true, name: true, points: true } })
+  const { data: user } = await supabaseAdmin
+    .from('User')
+    .select('id, name, referralCode, walletBalance')
+    .limit(1)
+    .single()
+
+  const { data: top } = await supabaseAdmin
+    .from('User')
+    .select('id, name, points')
+    .order('points', { ascending: false })
+    .limit(5)
+
+  if (!user) return <div className="animate-fade-up">No user found</div>
 
   return (
     <section className="space-y-6 animate-fade-up">
@@ -43,7 +54,7 @@ export default async function DashboardPage() {
           <Card>
             <h3 className="text-lg font-semibold mb-3">Leaderboard</h3>
             <div className="space-y-3 stagger">
-              {top.map((u: { id: string; name?: string | null; points: number }, i: number) => (
+              {top?.map((u: { id: string; name?: string | null; points: number }, i: number) => (
                 <div key={u.id} className="animate-pop">
                   <LeaderboardCard rank={i + 1} user={{ name: u.name ?? undefined, points: u.points }} />
                 </div>

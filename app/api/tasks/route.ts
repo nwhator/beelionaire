@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '../../../lib/prisma'
+import { supabaseAdmin } from '../../../lib/supabase-server'
 
 export async function GET() {
-  const tasks = await prisma.task.findMany({})
+  const { data: tasks } = await supabaseAdmin
+    .from('Task')
+    .select('*')
+  
   return NextResponse.json({ tasks })
 }

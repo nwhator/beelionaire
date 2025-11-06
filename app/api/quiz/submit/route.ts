@@ -1,17 +1,30 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '../../../../lib/prisma'
+import { supabaseAdmin } from '../../../../lib/supabase-server'
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
     const { userId, questionId, answer } = body
 
-    const question = await prisma.question.findUnique({ where: { id: questionId } })
+    const { data: question } = await supabaseAdmin
+      .from('Question')
+      .select('*')
+      .eq('id', questionId)
+      .single()
+    
     if (!question) return NextResponse.json({ error: 'Question not found' }, { status: 404 })
 
-    const isCorrect = question.answer === answer
+    const isCorrect = question.correctAnswer === answer
 
-    await prisma.quiz.create({ data: { userId, questionId, isCorrect } })
+    await supabaseAdmin
+      .from('Quiz')
+      .insert({ 
+        userId, 
+        questionId, 
+        selectedAnswer: answer,
+        isCorrect,
+        pointsEarned: isCorrect ? 10 : 0
+      })
 
     return NextResponse.json({ isCorrect })
   } catch (err) {

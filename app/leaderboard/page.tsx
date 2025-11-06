@@ -1,10 +1,14 @@
 export const dynamic = 'force-dynamic'
 
-import { prisma } from '../../lib/prisma'
+import { supabaseAdmin } from '../../lib/supabase-server'
 import LeaderboardCard from '../../components/ui/LeaderboardCard'
 
 export default async function LeaderboardPage() {
-  const top: { id: string; name: string | null; points: number }[] = await prisma.user.findMany({ orderBy: { points: 'desc' }, take: 50, select: { id: true, name: true, points: true } })
+  const { data: top } = await supabaseAdmin
+    .from('User')
+    .select('id, name, points')
+    .order('points', { ascending: false })
+    .limit(50)
 
   return (
     <section className="space-y-6 animate-fade-up">
@@ -14,7 +18,7 @@ export default async function LeaderboardPage() {
       </header>
 
       <div className="space-y-3 stagger">
-        {top.map((u, i) => (
+        {top?.map((u, i) => (
           <div key={u.id} className="animate-pop">
             <LeaderboardCard rank={i + 1} user={{ name: u.name ?? undefined, points: u.points }} />
           </div>

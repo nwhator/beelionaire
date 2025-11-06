@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '../../../lib/prisma'
+import { supabaseAdmin } from '../../../lib/supabase-server'
 
 export async function GET() {
-  const top = await prisma.user.findMany({ orderBy: { points: 'desc' }, take: 50, select: { id: true, name: true, points: true } })
+  const { data: top } = await supabaseAdmin
+    .from('User')
+    .select('id, name, points')
+    .order('points', { ascending: false })
+    .limit(50)
+  
   return NextResponse.json({ leaderboard: top })
 }

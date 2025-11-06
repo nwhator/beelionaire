@@ -1,10 +1,18 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '../../../../lib/prisma'
+import { supabaseAdmin } from '../../../../lib/supabase-server'
 
 export async function POST(request: Request) {
   try {
     const { userId, taskId } = await request.json()
-    const tc = await prisma.taskCompletion.create({ data: { userId, taskId, completed: true } })
+    
+    const { data: tc, error } = await supabaseAdmin
+      .from('TaskCompletion')
+      .insert({ userId, taskId })
+      .select()
+      .single()
+    
+    if (error) throw error
+    
     return NextResponse.json({ ok: true, tc })
   } catch (err) {
     return NextResponse.json({ error: 'Bad request' }, { status: 400 })

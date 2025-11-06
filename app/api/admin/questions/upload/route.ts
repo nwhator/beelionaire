@@ -1,21 +1,29 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '../../../../../lib/prisma'
+import { supabaseAdmin } from '../../../../../lib/supabase-server'
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    if (!Array.isArray(body.questions)) return NextResponse.json({ error: 'questions must be an array' }, { status: 400 })
+    if (!Array.isArray(body.questions)) {
+      return NextResponse.json({ error: 'questions must be an array' }, { status: 400 })
+    }
 
     const data = body.questions.map((q: any) => ({
-      category: q.category ?? 'spelling',
+      category: q.category ?? 'General',
       question: q.question,
-      options: JSON.stringify(q.options ?? []),
-      answer: q.answer,
+      options: q.options ?? [],
+      correctAnswer: q.correctAnswer || q.answer,
+      difficulty: q.difficulty ?? 'EASY',
     }))
 
-    await prisma.question.createMany({ data })
-    return NextResponse.json({ ok: true })
-  } catch (err) {
-    return NextResponse.json({ error: 'Bad request' }, { status: 400 })
+    const { error } = await supabaseAdmin
+      .from('Question')
+      .insert(data)
+    
+    if (error) throw error
+    
+    return NextResponse.json({ ok: true, count: data.length })
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message || 'Bad request' }, { status: 400 })
   }
 }
