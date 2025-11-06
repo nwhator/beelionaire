@@ -3,24 +3,40 @@ import type { NextRequest } from 'next/server'
 
 // Public routes that don't require authentication
 const publicRoutes = ['/', '/about', '/auth/login', '/auth/register', '/admin/login']
+const protectedRoutes = ['/dashboard', '/tasks', '/quiz', '/leaderboard', '/profile', '/wallet']
+const adminRoutes = ['/admin']
 
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname
 
-  // Check if route is public (or static files)
-  if (publicRoutes.includes(pathname) || pathname.startsWith('/_next') || pathname.startsWith('/api')) {
+  // Allow public routes and static files
+  if (
+    publicRoutes.includes(pathname) || 
+    pathname.startsWith('/_next') || 
+    pathname.startsWith('/api') ||
+    pathname.match(/\.(svg|png|jpg|jpeg|gif|webp|ico)$/)
+  ) {
     return NextResponse.next()
   }
 
-  // For protected routes, check for Supabase auth token
-  const accessToken = req.cookies.get('sb-access-token')?.value || 
-                      req.cookies.get('sb-iymhjodxpfzobisbxwdl-auth-token')?.value
+  // Check for Supabase auth tokens
+  const hasAuthToken = req.cookies.has('sb-access-token') || 
+                       req.cookies.has('sb-refresh-token') ||
+                       req.cookies.getAll().some(cookie => cookie.name.includes('auth-token'))
 
-  // No token - redirect to login
-  if (!accessToken) {
-    const loginUrl = new URL('/auth/login', req.url)
-    loginUrl.searchParams.set('redirect', pathname)
-    return NextResponse.redirect(loginUrl)
+  // Protect routes that require authentication
+  if (protectedRoutes.some(route => pathname.startsWith(route)) || 
+      adminRoutes.some(route => pathname.startsWith(route))) {
+    if (!hasAuthToken) {
+      const loginUrl = new URL('/auth/login', req.url)
+      loginUrl.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+  }
+
+  // If logged in and trying to access auth pages, redirect to dashboard
+  if ((pathname === '/auth/login' || pathname === '/auth/register') && hasAuthToken) {
+    return NextResponse.redirect(new URL('/dashboard', req.url))
   }
 
   return NextResponse.next()
@@ -28,6 +44,7 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 }
+

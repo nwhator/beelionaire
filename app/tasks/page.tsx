@@ -17,7 +17,7 @@ export default async function TasksPage() {
       </header>
 
       <Card className="animate-pop">
-        <TasksList tasks={tasks} />
+        <TasksList tasks={tasks || []} />
       </Card>
     </section>
   )
