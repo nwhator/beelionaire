@@ -5,76 +5,120 @@ import { supabase } from '../../../lib/supabase'
 
 export default function AuthCallback() {
   const router = useRouter()
-  const [error, setError] = useState<string | null>(null)
+  const [status, setStatus] = useState<string>('Processing...')
 
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        // Handle both URL params and hash fragments
+        setStatus('Reading confirmation link...')
+        
+        // Get the full URL
         const hashParams = new URLSearchParams(window.location.hash.substring(1))
         const searchParams = new URLSearchParams(window.location.search)
         
+        // Log everything for debugging
+        console.log('=== AUTH CALLBACK DEBUG ===')
+        console.log('Hash:', window.location.hash)
+        console.log('Search:', window.location.search)
+        console.log('Hash Params:', Object.fromEntries(hashParams))
+        console.log('Search Params:', Object.fromEntries(searchParams))
+
+        // Get tokens from either source
         const accessToken = hashParams.get('access_token') || searchParams.get('access_token')
         const refreshToken = hashParams.get('refresh_token') || searchParams.get('refresh_token')
         const tokenHash = hashParams.get('token_hash') || searchParams.get('token_hash')
         const type = hashParams.get('type') || searchParams.get('type')
-        
-        console.log('Callback params:', { accessToken: !!accessToken, refreshToken: !!refreshToken, tokenHash: !!tokenHash, type })
+        const error_code = hashParams.get('error_code') || searchParams.get('error_code')
+        const error_description = hashParams.get('error_description') || searchParams.get('error_description')
 
+        // Check for errors from Supabase
+        if (error_code || error_description) {
+          console.error('Supabase error:', { error_code, error_description })
+          setStatus(`Error: ${error_description || error_code}`)
+          setTimeout(() => router.push('/auth/login'), 3000)
+          return
+        }
+
+        // Method 1: Direct tokens (old Supabase format)
         if (accessToken && refreshToken) {
-          // Direct token in URL (from email confirmation)
-          const { error } = await supabase.auth.setSession({
+          console.log('Using direct token method')
+          setStatus('Logging you in...')
+          
+          const { data, error } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
           })
           
           if (error) {
-            console.error('Error setting session:', error)
-            setError('Failed to set session')
-            setTimeout(() => router.push('/auth/login?error=session_failed'), 2000)
+            console.error('setSession error:', error)
+            setStatus('Login failed. Redirecting...')
+            setTimeout(() => router.push('/auth/login'), 2000)
             return
           }
-        } else if (tokenHash && type) {
-          // Token hash (new Supabase format)
-          const { error } = await supabase.auth.verifyOtp({
+
+          console.log('Session set successfully:', !!data.session)
+          setStatus('Success! Redirecting to dashboard...')
+          
+          // Force a hard redirect to ensure cookies are set
+          setTimeout(() => {
+            window.location.href = '/dashboard'
+          }, 500)
+          return
+        }
+
+        // Method 2: Token hash (new Supabase format)
+        if (tokenHash && type) {
+          console.log('Using token hash method, type:', type)
+          setStatus('Verifying your email...')
+          
+          const { data, error } = await supabase.auth.verifyOtp({
             token_hash: tokenHash,
             type: type as any,
           })
           
           if (error) {
-            console.error('Error verifying OTP:', error)
-            setError('Failed to verify email')
-            setTimeout(() => router.push('/auth/login?error=verification_failed'), 2000)
+            console.error('verifyOtp error:', error)
+            setStatus('Verification failed. Redirecting...')
+            setTimeout(() => router.push('/auth/login'), 2000)
             return
           }
-        }
 
-        // Wait a bit for session to be set
-        await new Promise(resolve => setTimeout(resolve, 500))
-
-        // Check session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-        
-        console.log('Session check:', { hasSession: !!session, error: sessionError })
-
-        if (sessionError || !session) {
-          console.error('No session found:', sessionError)
-          setError('No session found')
-          setTimeout(() => router.push('/auth/login?error=no_session'), 2000)
+          console.log('OTP verified successfully:', !!data.session)
+          setStatus('Success! Redirecting...')
+          
+          // Redirect based on type
+          setTimeout(() => {
+            if (type === 'recovery') {
+              window.location.href = '/auth/reset-password'
+            } else {
+              window.location.href = '/dashboard'
+            }
+          }, 500)
           return
         }
 
-        // Successfully authenticated, redirect based on type
-        console.log('Auth successful, redirecting...')
-        if (type === 'recovery') {
-          router.push('/auth/reset-password')
-        } else {
-          router.push('/dashboard')
+        // Method 3: Check if already logged in (race condition)
+        setStatus('Checking authentication status...')
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (session) {
+          console.log('Already have session, redirecting')
+          setStatus('Already logged in! Redirecting...')
+          setTimeout(() => {
+            window.location.href = '/dashboard'
+          }, 500)
+          return
         }
-      } catch (err) {
-        console.error('Callback error:', err)
-        setError('An error occurred')
-        setTimeout(() => router.push('/auth/login'), 2000)
+
+        // No valid authentication method found
+        console.error('No valid auth method found')
+        setStatus('Invalid confirmation link. Redirecting to login...')
+        setTimeout(() => router.push('/auth/login'), 3000)
+
+      } catch (err: any) {
+        console.error('=== CALLBACK ERROR ===', err)
+        setStatus(`Error: ${err.message || 'Unknown error'}`)
+        setTimeout(() => router.push('/auth/login'), 3000)
       }
     }
 
@@ -82,21 +126,39 @@ export default function AuthCallback() {
   }, [router])
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center space-y-4">
-        {error ? (
-          <>
-            <div className="text-4xl mb-4">❌</div>
-            <p className="text-lg text-red-600">{error}</p>
-            <p className="text-sm text-gray-500">Redirecting to login...</p>
-          </>
-        ) : (
-          <>
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-bee mx-auto mb-4"></div>
-            <p className="text-lg">Confirming your email...</p>
-            <p className="text-sm text-gray-500">Please wait</p>
-          </>
-        )}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[var(--bee)] to-[var(--duo)]">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
+        <div className="text-center space-y-4">
+          {status.includes('Error') || status.includes('failed') || status.includes('Invalid') ? (
+            <>
+              <div className="text-6xl mb-4">❌</div>
+              <p className="text-lg font-semibold text-red-600">{status}</p>
+              <div className="text-sm text-gray-500">
+                <p>Don't worry! You can try:</p>
+                <ul className="mt-2 space-y-1">
+                  <li>• Logging in with your password</li>
+                  <li>• Requesting a new confirmation email</li>
+                </ul>
+              </div>
+            </>
+          ) : status.includes('Success') ? (
+            <>
+              <div className="text-6xl mb-4">✅</div>
+              <p className="text-lg font-semibold text-green-600">{status}</p>
+            </>
+          ) : (
+            <>
+              <div className="relative">
+                <div className="animate-spin rounded-full h-16 w-16 border-4 border-[var(--bee)] border-t-transparent mx-auto mb-4"></div>
+                <div className="absolute inset-0 flex items-center justify-center text-2xl">
+                  🐝
+                </div>
+              </div>
+              <p className="text-lg font-semibold">{status}</p>
+              <p className="text-sm text-gray-500">This will only take a moment</p>
+            </>
+          )}
+        </div>
       </div>
     </div>
   )

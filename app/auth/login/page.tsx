@@ -24,10 +24,24 @@ function LoginForm() {
     const { error } = await signIn(email, password)
     
     if (error) {
-      setError(error.message)
+      // Check if it's an email confirmation issue
+      if (error.message.includes('Email not confirmed') || 
+          error.message.includes('email_not_confirmed') ||
+          error.message.includes('not confirmed')) {
+        setError('Please check your email and click the confirmation link before logging in. Check your spam folder if you don\'t see it.')
+      } else {
+        setError(error.message)
+      }
       setLoading(false)
     } else {
-      router.push(redirect)
+      // Double check session is set
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        router.push(redirect)
+      } else {
+        setError('Login successful but session not set. Please try again.')
+        setLoading(false)
+      }
     }
   }
 

@@ -9,6 +9,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
   const { signUp } = useAuth()
   const router = useRouter()
@@ -16,6 +17,7 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setSuccess(false)
     setLoading(true)
 
     const { error } = await signUp(email, password, name)
@@ -24,8 +26,40 @@ export default function RegisterPage() {
       setError(error.message)
       setLoading(false)
     } else {
-      router.push('/dashboard')
+      setSuccess(true)
+      setLoading(false)
     }
+  }
+
+  if (success) {
+    return (
+      <div className="max-w-md mx-auto">
+        <div className="card space-y-4 text-center">
+          <div className="text-6xl">📧</div>
+          <h2 className="text-2xl font-semibold">Check your email!</h2>
+          <p className="text-gray-600">
+            We've sent a confirmation link to <strong>{email}</strong>
+          </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-left">
+            <p className="font-semibold mb-2">📝 Next steps:</p>
+            <ol className="list-decimal list-inside space-y-1">
+              <li>Check your email inbox</li>
+              <li>Click the confirmation link</li>
+              <li>You'll be automatically logged in</li>
+            </ol>
+          </div>
+          <p className="text-sm text-gray-500">
+            💡 Can't find it? Check your spam folder or{' '}
+            <button 
+              onClick={() => setSuccess(false)} 
+              className="text-bee hover:underline"
+            >
+              try again
+            </button>
+          </p>
+        </div>
+      </div>
+    )
   }
 
   return (
