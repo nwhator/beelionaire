@@ -19,13 +19,14 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
-  // Check for Supabase auth tokens (more comprehensive check)
-  const supabaseAuthCookie = req.cookies.getAll().find(cookie => 
-    cookie.name.startsWith('sb-') && cookie.name.includes('auth-token')
+  // Check for Supabase auth tokens (look for any sb- prefixed auth cookie)
+  const allCookies = req.cookies.getAll()
+  console.log('Middleware cookies:', allCookies.map(c => ({ name: c.name, hasValue: !!c.value })))
+  
+  const supabaseAuthCookie = allCookies.find(cookie => 
+    cookie.name.startsWith('sb-') && (cookie.name.includes('auth-token') || cookie.name.endsWith('-auth-token'))
   )
-  const hasAuthToken = !!supabaseAuthCookie || 
-                       req.cookies.has('sb-access-token') || 
-                       req.cookies.has('sb-refresh-token')
+  const hasAuthToken = !!supabaseAuthCookie?.value
 
   // Check for admin auth
   const isAdminPath = pathname.startsWith('/admin') && pathname !== '/admin/login'
@@ -39,15 +40,19 @@ export async function middleware(req: NextRequest) {
 
   // Protect routes that require authentication
   if (protectedRoutes.some(route => pathname.startsWith(route))) {
+    console.log('Protected route check:', { pathname, hasAuthToken })
     if (!hasAuthToken) {
+      console.log('No auth token, redirecting to login')
       const loginUrl = new URL('/auth/login', req.url)
       loginUrl.searchParams.set('redirect', pathname)
       return NextResponse.redirect(loginUrl)
     }
+    console.log('Auth token found, allowing access')
   }
 
   // If logged in and trying to access auth pages, redirect to dashboard
   if ((pathname === '/auth/login' || pathname === '/auth/register') && hasAuthToken) {
+    console.log('Already logged in, redirecting to dashboard')
     return NextResponse.redirect(new URL('/dashboard', req.url))
   }
 
